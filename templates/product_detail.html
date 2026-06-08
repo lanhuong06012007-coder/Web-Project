@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    .trang-chinh { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .duong-dan { font-size: 12px; color: #777; margin-bottom: 20px; }
+    .bo-cuc-3-cot { display: grid; grid-template-columns: 5fr 4fr 3fr; gap: 30px; }
+    .anh-chinh { width: 100%; border: 1px solid #ddd; border-radius: 4px; }
+    .danh-sach-anh-nho { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
+    .anh-nho { width: 100%; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; }
+    .anh-nho.kich-hoat { border-color: #7dbd25; border-width: 2px; }
+    .ten-san-pham { font-size: 24px; color: #222; margin-bottom: 10px; }
+    .khung-gia { margin: 15px 0; }
+    .gia-moi { font-size: 28px; color: #d93838; font-weight: bold; }
+    .gia-cu { font-size: 14px; color: #aaa; text-decoration: line-through; margin-left: 10px; }
+    .tiet-kiem { display: inline-block; background: #ffebeb; color: #d93838; font-size: 12px; padding: 2px 8px; border-radius: 4px; margin-top: 5px; font-weight: bold;}
+    .mo-ta { font-size: 14px; color: #555; margin-bottom: 20px; }
+    .chinh-sach-icon { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; text-align: center; font-size: 11px; background: #f9f9f9; padding: 10px; border-radius: 4px; margin-bottom: 20px; }
+    .khung-mua-hang { display: flex; gap: 10px; margin-bottom: 20px; }
+    .so-luong { display: flex; border: 1px solid #ccc; border-radius: 4px; }
+    .so-luong button { width: 35px; background: #eee; border: none; font-size: 18px; cursor: pointer; }
+    .so-luong input { width: 40px; text-align: center; border: none; font-weight: bold; }
+    .nut-them-gio { flex: 1; background: #4fa721; color: white; border: none; border-radius: 4px; font-weight: bold; font-size: 16px; cursor: pointer; text-transform: uppercase; }
+    .tieu-de-cot-3 { font-size: 14px; text-transform: uppercase; font-weight: bold; margin-bottom: 10px; border-left: 3px solid #7dbd25; padding-left: 10px; }
+    .danh-sach-cam-ket { list-style: none; font-size: 13px; color: #555; margin-bottom: 25px; }
+    .danh-sach-cam-ket li { margin-bottom: 8px; position: relative; padding-left: 20px; }
+    .danh-sach-cam-ket li::before { content: "✓"; color: #4fa721; position: absolute; left: 0; font-weight: bold; }
+    .hop-cua-hang { border: 1px solid #ddd; border-radius: 4px; overflow: hidden; }
+    .hop-tieu-de { background: #6fa821; color: white; padding: 10px; font-weight: bold; font-size: 14px; text-transform: uppercase; }
+    .hop-noi-dung { padding: 15px; font-size: 13px; background: #fafafa; }
+    @media (max-width: 900px) { .bo-cuc-3-cot { grid-template-columns: 1fr; } }
+</style>
+
+<main class="trang-chinh">
+    <div class="duong-dan">Sản phẩm / {{ product.category }} / <b>{{ product.name }}</b></div>
+    <div class="bo-cuc-3-cot">
+        <div>
+            {% if product.images %}
+                <img class="anh-chinh" id="mainImg" src="{{ url_for('static', filename=product.images[0].image_url) }}" alt="{{ product.name }}">
+                <div class="danh-sach-anh-nho">
+                    {% for img in product.images %}
+                        <img class="anh-nho {% if loop.first %}kich-hoat{% endif %}" src="{{ url_for('static', filename=img.image_url) }}" onclick="changeImage(this)">
+                    {% endfor %}
+                </div>
+            {% else %}
+                <img class="anh-chinh" src="https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&q=80&w=600">
+            {% endif %}
+        </div>
+
+        <div>
+            <h1 class="ten-san-pham">{{ product.name }}</h1>
+            <div class="khung-gia">
+                <span class="gia-moi">{{ "{:,}".format(product.new_price) }}đ</span>
+                {% if product.old_price %}
+                    <span class="gia-cu">{{ "{:,}".format(product.old_price) }}đ</span><br>
+                    <span class="tiet-kiem">Tiết kiệm: {{ "{:,}".format(tiet_kiem) }}đ (-{{ phan_tram_giam }}%)</span>
+                {% endif %}
+            </div>
+            <p class="mo-ta">{{ product.description }}</p>
+            <div class="chinh-sach-icon">
+                <div>🚚<br>Vận chuyển</div><div>🔄<br>Đổi trả</div><div>💳<br>Thanh toán</div><div>🛡️<br>Bảo mật</div>
+            </div>
+            <div class="khung-mua-hang">
+                <div class="so-luong">
+                    <button onclick="changeQty(-1)">-</button><input type="text" id="qty" value="1" readonly><button onclick="changeQty(1)">+</button>
+                </div>
+                <button class="nut-them-gio" onclick="alert('📢 Liên hệ với SĐT: 0123456789 hoặc 0987654321 để đặt hàng❗')">Thêm vào giỏ hàng</button>
+            </div>
+        </div>
+
+        <div>
+            <h3 class="tieu-de-cot-3">Cây Cảnh Hà Nội</h3>
+            <ul class="danh-sach-cam-ket">
+                <li>Mang đến sản phẩm dịch vụ tốt nhất</li><li>Sản phẩm chất lượng, giá cạnh tranh</li>
+            </ul>
+            <div class="hop-cua-hang">
+                <div class="hop-tieu-de">Hệ thống cửa hàng</div>
+                <div class="hop-noi-dung">
+                    <p><b>Shop 1:</b>Shop Lan Hương, 188 Trung Kính, Cầu Giấy, Hà Nội</p> <p>🌱SĐT: 0123456789 </p>
+                    <p><b>Shop 2:</b>Shop Minh Châu, 628 Hoàng Hoa Thám, Tây Hồ, Hà Nội</p> <p>🌷SĐT: 0987654321 </p></div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    function changeImage(element) {
+        document.getElementById('mainImg').src = element.src;
+        document.querySelectorAll('.anh-nho').forEach(img => img.classList.remove('kich-hoat'));
+        element.classList.add('kich-hoat');
+    }
+    function changeQty(amt) {
+        let input = document.getElementById('qty');
+        let val = parseInt(input.value) + amt;
+        if(val >= 1) input.value = val;
+    }
+</script>
+
+<hr class="my-5">
+    <div class="row mt-4">
+        <div class="col-md-7">
+            <h4 class="fw-bold text-success mb-3">
+                Đánh giá từ khách hàng 
+                {% if avg_rating > 0 %}
+                    <span class="text-warning">⭐ {{ avg_rating }}/5</span>
+                {% endif %}
+            </h4>
+            
+            {% if reviews %}
+                <div class="review-list" style="max-height: 500px; overflow-y: auto;">
+                    {% for r in reviews %}
+                        <div class="card mb-3 border-0 shadow-sm bg-light">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <b class="text-dark">{{ r.user.username }}</b>
+                                    <small class="text-muted">{{ r.created_at.strftime('%d/%m/%Y %H:%M') }}</small>
+                                </div>
+                                <div class="text-warning mb-2">
+                                    {% for i in range(r.rating) %}⭐{% endfor %}
+                                </div>
+                                <p class="card-text text-secondary mb-0">{{ r.comment }}</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted italic">Sản phẩm này chưa có đánh giá nào. Hãy là người đầu tiên đánh giá!</p>
+            {% endif %}
+        </div>
+
+        <div class="col-md-5">
+            <div class="p-4 bg-white rounded shadow-sm border border-success-subtle">
+                <h5 class="fw-bold text-dark mb-3">Viết đánh giá của bạn</h5>
+                
+                {% if current_user.is_authenticated %}
+                    <form method="POST" action="{{ url_for('product.add_review', product_id=product.id) }}">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Chọn mức độ hài lòng:</label>
+                            <select name="rating" class="form-select text-warning fw-bold" required>
+                                <option value="5" class="text-warning">⭐⭐⭐⭐⭐ (Xuất sắc)</option>
+                                <option value="4" class="text-warning">⭐⭐⭐⭐ (Tốt)</option>
+                                <option value="3" class="text-warning">⭐⭐⭐ (Bình thường)</option>
+                                <option value="2" class="text-warning">⭐⭐ (Kém)</option>
+                                <option value="1" class="text-warning">⭐ (Quá tệ)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Nội dung nhận xét:</label>
+                            <textarea name="comment" class="form-control" rows="4" placeholder="Chia sẻ trải nghiệm của bạn về loại cây này..." required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success w-100 fw-bold" style="background-color: #6fa821;">Gửi đánh giá ngay</button>
+                    </form>
+                {% else %}
+                    <div class="text-center py-3">
+                        <p class="text-muted mb-3">Bạn cần đăng nhập hệ thống để có thể để lại đánh giá sản phẩm.</p>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-success fw-bold btn-sm">Đăng nhập ngay</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

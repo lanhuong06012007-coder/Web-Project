@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 bg-white p-4 rounded shadow-sm">
+        <h4 class="mb-4 text-dark fw-bold">{% if product %} CẬP NHẬT THÔNG TIN: {{ product.name }} {% else %} THÊM CÂY CẢNH MỚI LÊN HỆ THỐNG {% endif %}</h4>
+        <form method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label class="form-label fw-bold">Tên sản phẩm cây cảnh</label>
+                <input type="text" name="name" class="form-control" value="{{ product.name if product else '' }}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Danh mục phân loại</label>
+                <select name="category" class="form-select" required>
+                    <option value="Cây cảnh" {% if product and product.category == 'Cây cảnh' %}selected{% endif %}>Cây cảnh</option>
+                    <option value="Hoa cảnh" {% if product and product.category == 'Hoa cảnh' %}selected{% endif %}>Hoa cảnh</option>
+                    <option value="Dụng cụ" {% if product and product.category == 'Dụng cụ' %}selected{% endif %}>Dụng cụ</option>
+                </select>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <label class="form-label fw-bold">Giá bán mới hiện tại (đ)</label>
+                    <input type="number" name="new_price" class="form-control" value="{{ product.new_price if product else '' }}" required>
+                </div>
+                <div class="col">
+                    <label class="form-label fw-bold">Giá cũ / Giá gốc ban đầu (đ)</label>
+                    <input type="number" name="old_price" class="form-control" value="{{ product.old_price if product else '' }}">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Mô tả sản phẩm chi tiết</label>
+                <textarea name="description" class="form-control" rows="5" required>{{ product.description if product else '' }}</textarea>
+            </div>
+            
+            {% if not product %}
+            <div class="mb-4 bg-light p-3 rounded border">
+                <label class="form-label fw-bold text-success">Tính năng nâng cao: Chọn tệp ảnh tải lên (Cho phép chọn đồng thời nhiều ảnh)</label>
+                <input type="file" name="images" class="form-control" multiple accept="image/*" required>
+            </div>
+            {% endif %}
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-success fw-bold px-4">Lưu lại ngay</button>
+                <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary fw-bold px-4">Hủy bỏ</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

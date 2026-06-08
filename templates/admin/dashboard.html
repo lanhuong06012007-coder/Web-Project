@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded shadow-sm">
+    <h3 class="m-0 text-danger fw-bold">Bảng quản trị E-Commerce Admin</h3>
+    <a href="{{ url_for('admin.add_product') }}" class="btn btn-danger fw-bold">+ Thêm sản phẩm cây mới</a>
+</div>
+
+<div class="bg-white p-3 rounded shadow-sm table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>Ảnh cây</th>
+                <th>Tên cây cảnh</th>
+                <th>Danh mục</th>
+                <th>Giá bán</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in products %}
+            <tr>
+                <td>
+                    <img src="{% if p.images %}{{ url_for('static', filename=p.images[0].image_url) }}{% else %}https://via.placeholder.com/60{% endif %}" style="width:60px; height:60px; object-fit:cover;" class="rounded border">
+                </td>
+                <td class="fw-bold">{{ p.name }}</td>
+                <td><span class="badge bg-secondary">{{ p.category }}</span></td>
+                <td class="text-danger fw-bold">{{ "{:,}".format(p.new_price) }}đ</td>
+                <td>
+                    <div class="d-flex gap-2">
+                        <a href="{{ url_for('admin.edit_product', id=p.id) }}" class="btn btn-sm btn-warning fw-bold">Sửa</a>
+                        <form method="POST" action="{{ url_for('admin.delete_product', id=p.id) }}" onsubmit="return confirm('Bạn có thực sự chắc chắn muốn xoá cây này không?')">
+                            <button type="submit" class="btn btn-sm btn-danger fw-bold">Xóa</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="text-center text-muted py-4">Chưa có cây cảnh nào trong hệ thống dữ liệu DB.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
