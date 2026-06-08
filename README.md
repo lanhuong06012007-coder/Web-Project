@@ -6,10 +6,11 @@
 ```bash
 pip install -r requirements.txt
 ```
+```bash
 pip install Flask
 pip install Flask-SQLAlchemy
 pip install Flask-Login
-
+```
 SQLite
 SQLite Viewer
 
